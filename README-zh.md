@@ -1,4 +1,4 @@
-# 乐高 / lego
+# 乐高 / [lego][lego]
 
 本项目是 runX 的乐高积木版，灵感来自对 [runX][runX]、[k8s-start][k8s-start]、wtool（微博内部工具包） 几个项目的总结，旨在像搭积木一样来组合各种系统部署、管理功能，高效的代码复用、提高工作效率、解放双手。
 
@@ -15,6 +15,7 @@
 * 在线安装
 * 添加、删除模块
 
+[lego]:https://github.com/idevz/lego/blob/master/README.md
 [auto_completion]:https://www.infoq.cn/article/bash-programmable-completion-tutorial
 [runX]:https://github.com/idevz/runx
 [k8s-start]:https://github.com/idevz/k8s-start

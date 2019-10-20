@@ -1,4 +1,4 @@
-# lego / 乐高
+# lego / [乐高]
 
 this is the lego version for runX, its soul is came from the summarize about [runX][runX], [k8s-start][k8s-start], wtool(a inner tools set for weibo staffs). It is designed to combine various system deployment and management functions like building blocks, effectively reuse code, improve work efficiency and free hands.
 
@@ -15,6 +15,7 @@ this is the lego version for runX, its soul is came from the summarize about [ru
 * online installation
 * add,remove modules
 
+[lego]:https://github.com/idevz/lego/blob/master/README-zh.md
 [auto_completion]:https://www.infoq.cn/article/bash-programmable-completion-tutorial
 [runX]:https://github.com/idevz/runx
 [k8s-start]:https://github.com/idevz/k8s-start
