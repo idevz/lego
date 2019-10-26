@@ -38,7 +38,7 @@ Usage:
     if [ "$(lego::base::has_str "${2}" "::")" = 'false' ]; then
         func_name=${2}
         shift 2
-        func_shell="${module_name}/legoes/helper.sh"
+        func_shell="${module_name}/legoes/helpers.sh"
     else
         func_name="${module_name}::${2}"
         shift 2

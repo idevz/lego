@@ -43,8 +43,8 @@ function lego::base::call_func() {
     func_name=${1}
     [ -z "${func_name}" ] && exit 1
 
-    if [ "$(common::base::fn_exists "${func_name}")" = 'false' ]; then
-        func_shell=$(h::fn_shell "${func_name}")
+    if [ "$(lego::base::fn_exists "${func_name}")" = 'false' ]; then
+        func_shell=$(lego::base::fn_shell "${func_name}")
         lego_shell="${LEGO_ROOT}/${func_shell}"
         vendor_lego_shell="${LEGO_ROOT}/vendor/${func_shell}"
         [ -f "${lego_shell}" ] && source "${lego_shell}"
