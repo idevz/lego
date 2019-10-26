@@ -17,6 +17,12 @@ this is the lego version for runX, its soul is came from the summarize about [ru
 It is designed to combine various system deployment and management functions like building blocks,
 effectively reuse code, improve work efficiency and free hands.
 
+## quick start
+
+To be quick start with Lego, please view the [quick start docs](./qs.md)
+sh -c "$(curl -sSL https://get.docker.com/)"
+
+
 ## Main functions and ideas
 
 * Quickly set up the experimental environment, deploy PVM(Parallels Virtual Machines),
@@ -33,7 +39,7 @@ effectively reuse code, improve work efficiency and free hands.
   "Command::module-name::function-name", For example, "pvm::deploy::init_etc" means
   the function `init_etc` in the deploy module under the `pvm` command
   In principle, direct calls are avoided, but if they must be,
-  the corresponding command is `o PVM deploy::init_etc`.
+  the corresponding command is `o pvm deploy::init_etc`.
 * Command function is the carrier of various command operation,
   which is the encapsulation and combination of "module function".
   Lego's idea is mainly reflected in this part. The name is called "command name",
