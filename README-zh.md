@@ -15,6 +15,14 @@
 本项目是 runX 的乐高积木版，灵感来自对 [runX][runX]、[k8s-start][k8s-start]、wtool（微博内部工具包）
 几个项目的总结，旨在像搭积木一样来组合各种系统部署、管理功能，高效的代码复用、提高工作效率、解放双手。
 
+## 快速开始
+
+只需要简单几条命令就可以快速开始 Lego。
+
+### 安装
+
+sh -c "$(curl -sSL https://raw.githubusercontent.com/idevz/lego/master/get.sh)"
+
 ## 主要功能及思想
 
 * 快速搭建实验环境，部署 pvm(Parallels Virtual Machines)，并通过 prlctl 工具来管理 pvm

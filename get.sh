@@ -23,7 +23,7 @@ function lego::base::logo() {
   ░ ░ ▒  ░ ░ ░  ░  ░   ░   ░ ▒ ▒░ 
     ░ ░      ░   ░ ░   ░ ░ ░ ░ ▒  
       ░  ░   ░  ░      ░     ░ ░  
-    "
+"
 }
 
 get_type() {
