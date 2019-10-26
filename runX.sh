@@ -29,10 +29,6 @@ Usage:
 "
     ;;
 *)
-    # lego::base::get_this_ip
-    # ip=$(lego::base::get_this_ip) || ip="false"
-    # echo $ip
-    # exit 0
     # if there is a '::' in ${2}, then this call a function, like o pvm deploy::${func?}
     # if not, then its calling a export ablity from each 'helper.sh', like o pvm dosomething
     if [ "$(lego::base::has_str "${2}" "::")" = 'false' ]; then

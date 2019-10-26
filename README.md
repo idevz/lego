@@ -19,9 +19,26 @@ effectively reuse code, improve work efficiency and free hands.
 
 ## quick start
 
-To be quick start with Lego, please view the [quick start docs](./qs.md)
-sh -c "$(curl -sSL https://get.docker.com/)"
+Lego can be started quickly with a few commands.
 
+### installation
+
+Simply run the following command to install the Lego.
+
+```bash
+sh -c "$(curl -sSL https://raw.githubusercontent.com/idevz/lego/master/get.sh)"
+# sh -c "$(curl -H 'Cache-Control: no-cache' \
+#     -sSL 'https://raw.githubusercontent.com/idevz/lego/master/get.sh')"
+```
+
+### examples of other commands
+
+```bash
+# Add the third-party module "idevz"
+o lego add idevz
+# Run the relevant commands of the module "idevz"
+o idevz your_function
+```
 
 ## Main functions and ideas
 

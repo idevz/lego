@@ -21,7 +21,22 @@
 
 ### 安装
 
+只需运行如下命令即可安装 Lego。
+
+```bash
 sh -c "$(curl -sSL https://raw.githubusercontent.com/idevz/lego/master/get.sh)"
+# sh -c "$(curl -H 'Cache-Control: no-cache' \
+#     -sSL 'https://raw.githubusercontent.com/idevz/lego/master/get.sh')"
+```
+
+### 其他命令示例
+
+```bash
+# 添加第三方模块 "idevz"
+o lego add idevz
+# 运行模块 "idevz" 的相关命令
+o idevz your_function
+```
 
 ## 主要功能及思想
 
