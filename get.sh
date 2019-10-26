@@ -6,11 +6,13 @@
 # Description:       online install lego
 # get          ./get.sh
 #
+# this online installation script is came from "wtool" which created by qindi@weibo.com
+#
 # Environment variables that control this script:
 #
 ### END ###
 
-set -ex
+set -e
 
 function logo() {
     echo "
@@ -35,7 +37,7 @@ function get_type() {
         read choice </dev/tty
         if [ "$choice" = "q" ]; then exit 0; fi
         if [ "$choice" -gt "0" ] 2>/dev/null && [ "$choice" -lt "4" ] 2>/dev/null; then
-            return $choice
+            return "$choice"
         else
             echo "$choice is not valid option!"
         fi
@@ -100,9 +102,9 @@ function do_fetch() {
 }
 
 function do_install() {
-    echo '***install need sudo,please enter password***'
+    echo '***install need sudo, please enter password***'
     sudo make install
-    echo 'lego was installed to /usr/local/bin,have fun.'
+    echo 'lego had been installed to /usr/local/bin as command "o", have fun.'
 }
 
 function main() {

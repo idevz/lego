@@ -1,3 +1,4 @@
+# this Makefile is came from wtool which created by qindi@weibo.com
 prefix=/usr/local
 
 all:
@@ -11,6 +12,6 @@ install:
 	@echo 'exec "$(shell pwd)/o" "$$@"' >> $(prefix)/bin/o
 	@chmod 755 $(prefix)/bin/o
 	@chmod 755 lego
-	@echo 'install finished! type "lego" to show usages.'
+	@echo 'install finished! type "o -h" to show usages.'
 uninstall:
 	@rm -f $(prefix)/bin/o
