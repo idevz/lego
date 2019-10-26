@@ -10,7 +10,7 @@
 #
 ### END ###
 
-set -e
+# set -e
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/common/legoes/
 

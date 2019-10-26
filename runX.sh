@@ -14,30 +14,49 @@ set -e
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 
 # must source to current action scope
-source ${LEGO_ROOT}/common/legoes/helpers.sh && h::load_common || exit 1
+source ${LEGO_ROOT}/lego/legoes/base.sh && lego::base::load_common || exit 1
 
-do_what=${1}
+module_name=${1}
 
-case ${do_what} in
+case ${module_name} in
 h | -h | --help)
     echo "
 Usage:
 
-        o [do_what] [funcs] [params]
-        eg. o pvm deploy::echo
+        o [module_name] [funcs] [params]
+        eg. o pvm deploy::\${func?}
+            o pvm dosomething
 "
     ;;
 *)
-    fn="${do_what}::${2}"
-    shift 2
-    if [[ $(h::fn_exists "${fn}") == "false" ]]; then
-        func_shell=$(h::fn_shell ${fn})
-        lego_shell="${LEGO_ROOT}/${func_shell}"
-        vendor_lego_shell="${LEGO_ROOT}/vendor/${func_shell}"
-        [ -f "${lego_shell}" ] && source "${lego_shell}"
-        [ -f "${vendor_lego_shell}" ] && source "${vendor_lego_shell}"
+    # lego::base::get_this_ip
+    ip=$(lego::base::get_this_ip) || ip="false"
+    echo $ip
+    exit 0
+    # if there is a '::' in ${2}, then this call a function, like o pvm deploy::${func?}
+    # if not, then its calling a export ablity from each 'helper.sh', like o pvm dosomething
+    if [ "$(lego::base::has_str "${2}" "::")" = 'false' ]; then
+        func_name=${2}
+        shift 2
+        func_shell="${module_name}/legoes/helper.sh"
+    else
+        func_name="${module_name}::${2}"
+        shift 2
+        func_shell="$(lego::base::fn_shell "${func_name}")"
     fi
 
-    ${fn} "$@" && echo "done." && exit 0
+    lego_shell="${LEGO_ROOT}/${func_shell}"
+    vendor_lego_shell="${LEGO_ROOT}/vendor/${func_shell}"
+
+    [ -f "${lego_shell}" ] && source "${lego_shell}"
+    [ -f "${vendor_lego_shell}" ] && source "${vendor_lego_shell}"
+
+    if [ "$(lego::base::fn_exists "${func_name}")" != 'false' ]; then
+        ${func_name} "$@" && echo "done." && exit 0
+    else
+        echo "none function ${func_name} found."
+        exit 1
+    fi
     ;;
+
 esac

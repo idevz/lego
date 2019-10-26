@@ -2,9 +2,9 @@
 
 ### BEGIN ###
 # Author: idevz
-# Since: 11:04:59 2019/10/20
-# Description:       common base funcs
-# base          source ./base.sh
+# Since: 13:13:07 2019/10/26
+# Description:       pvm hepler funcs
+# helper          . ./hepler.sh && func args
 #
 # Environment variables that control this script:
 #
@@ -13,6 +13,6 @@
 set -e
 BASE_DIR=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 
-function base::do() {
-    echo ""
+function ok() {
+    echo "pvm->ok"
 }

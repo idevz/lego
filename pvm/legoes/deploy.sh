@@ -74,3 +74,7 @@ function pvm::deploy::no_pass_login_to_mac() {
     echo "please append this id_rsa.pub to mac ~/.ssh/authorized_keys"
     echo "like cat >>~/.ssh/authorized_keys in mac ..."
 }
+
+function pvm::deploy::xx() {
+    echo "------->pvm::deploy::xx"
+}
