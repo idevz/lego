@@ -12,7 +12,7 @@
 
 set -ex
 
-function lego::base::logo() {
+function logo() {
     echo "
    ██▓    ▓█████   ▄████  ▒█████  
   ▓██▒    ▓█   ▀  ██▒ ▀█▒▒██▒  ██▒
@@ -22,8 +22,7 @@ function lego::base::logo() {
   ░ ▒░▓  ░░░ ▒░ ░ ░▒   ▒ ░ ▒░▒░▒░ 
   ░ ░ ▒  ░ ░ ░  ░  ░   ░   ░ ▒ ▒░ 
     ░ ░      ░   ░ ░   ░ ░ ░ ░ ▒  
-      ░  ░   ░  ░      ░     ░ ░  
-"
+      ░  ░   ░  ░      ░     ░ ░"
 }
 
 function get_type() {
@@ -107,7 +106,7 @@ function do_install() {
 }
 
 function main() {
-    lego::base::logo
+    logo
     local type=
     if [ "$1" = "install" ]; then
         type="1"
