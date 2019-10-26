@@ -26,7 +26,7 @@ function lego::base::logo() {
 "
 }
 
-get_type() {
+function get_type() {
     echo "1 : Download and install to current folder"
     echo "2 : Download only"
     echo "q : Quit"
@@ -43,7 +43,7 @@ get_type() {
     done
 }
 
-do_download() {
+function do_download() {
     local fetch_dir=${1}
     if [ ! -d "$fetch_dir" ]; then
         echo "$fetch_dir is not vaild!"
@@ -63,12 +63,12 @@ do_download() {
     echo "lego is downloaded to $fetch_dir/lego"
 }
 
-do_download_archive() {
+function do_download_archive() {
     mkdir lego && cd lego
     curl -L https://github.com/idevz/lego/tarball/master | tar -xf - --strip-components=1
 }
 
-test_exists() {
+function test_exists() {
     if [ -e o ] || [ -e runX.sh ]; then
         echo "$1/lego already exist!"
         local choice=
@@ -87,7 +87,7 @@ test_exists() {
     fi
 }
 
-do_fetch() {
+function do_fetch() {
     local fetch_dir=$1
     if [ ! -d "$fetch_dir" ]; then
         echo "$fetch_dir is not vaild!"
@@ -100,13 +100,13 @@ do_fetch() {
     return 0
 }
 
-do_install() {
+function do_install() {
     echo '***install need sudo,please enter password***'
     sudo make install
     echo 'lego was installed to /usr/local/bin,have fun.'
 }
 
-main() {
+function main() {
     lego::base::logo
     local type=
     if [ "$1" = "install" ]; then
