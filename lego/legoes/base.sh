@@ -8,23 +8,25 @@
 #
 # Environment variables that control this script:
 #
+#   ██▓    ▓█████   ▄████  ▒█████
+#  ▓██▒    ▓█   ▀  ██▒ ▀█▒▒██▒  ██▒
+#  ▒██░    ▒███   ▒██░▄▄▄░▒██░  ██▒
+#  ▒██░    ▒▓█  ▄ ░▓█  ██▓▒██   ██░
+#  ░██████▒░▒████▒░▒▓███▀▒░ ████▓▒░
+#  ░ ▒░▓  ░░░ ▒░ ░ ░▒   ▒ ░ ▒░▒░▒░
+#  ░ ░ ▒  ░ ░ ░  ░  ░   ░   ░ ▒ ▒░
+#    ░ ░      ░   ░ ░   ░ ░ ░ ░ ▒
+#      ░  ░   ░  ░      ░     ░ ░
+#
+# this logo thanks to:
+# http://patorjk.com/software/taag/#p=display&c=bash&f=Bloody&t=Lego
+# http://asciiflow.com/
 ### END ###
 
 set -e
 
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes/
-
-function lego::base::create_modules() {
-    module_name=${1}
-    func_file=${2}
-    [[ -z "${module_name}" ]] &&
-        echo "moudle name must be not empty." && exit 1
-    module_legoes_path=${LEGO_ROOT}/${module_name}/legoes
-    mkdir -p "${module_legoes_path}"
-    [[ -z ${func_file} ]] && func_file="helpers"
-    touch "${module_legoes_path}/${func_file}.sh"
-}
 
 function lego::base::load_common() {
     local common_lib_export="${COMMON_LEGO_ROOT}/export"
@@ -33,6 +35,53 @@ function lego::base::load_common() {
         [ -x "${common_lib}" ] &&
             source ${common_lib} || echo "error to source file: ${common_lib}"
     done <"${common_lib_export}"
+}
+
+function lego::base::create_module() {
+    type=${2}
+    shift 2
+    local module_name=${1}
+    local func_file=${2}
+    [[ -z "${module_name}" ]] &&
+        echo "moudle name must be not empty." && exit 1
+    local module_legoes_path=${LEGO_ROOT}/vendor/${module_name}/legoes
+    [ "${type}" = 'sys' ] &&
+        module_legoes_path=${LEGO_ROOT}/${module_name}/legoes
+    mkdir -p "${module_legoes_path}"
+    [[ -z ${func_file} ]] && func_file="helpers"
+    touch "${module_legoes_path}/${func_file}.sh"
+    cat <<HELPERS >"${module_legoes_path}/${func_file}.sh"
+#!/usr/bin/env bash
+
+### BEGIN ###
+# Author: lego users
+# Since: $(date +"%H:%M:%S %y/%m/%d")
+# Description:  function about ${module_name}
+# base          source ./${func_file}.sh
+#
+# Environment variables that control this script:
+#
+#   ██▓    ▓█████   ▄████  ▒█████
+#  ▓██▒    ▓█   ▀  ██▒ ▀█▒▒██▒  ██▒
+#  ▒██░    ▒███   ▒██░▄▄▄░▒██░  ██▒
+#  ▒██░    ▒▓█  ▄ ░▓█  ██▓▒██   ██░
+#  ░██████▒░▒████▒░▒▓███▀▒░ ████▓▒░
+#  ░ ▒░▓  ░░░ ▒░ ░ ░▒   ▒ ░ ▒░▒░▒░
+#  ░ ░ ▒  ░ ░ ░  ░  ░   ░   ░ ▒ ▒░
+#    ░ ░      ░   ░ ░   ░ ░ ░ ░ ▒
+#      ░  ░   ░  ░      ░     ░ ░
+#
+### END ###
+
+set -e
+
+LEGO_ROOT=\$(dirname \$(cd \$(dirname "\$0") && pwd -P)/\$(basename "\$0"))
+COMMON_LEGO_ROOT=\${LEGO_ROOT}/lego/legoes/
+
+function your_function() {
+    echo "do something."
+}
+HELPERS
 }
 
 function lego::base::fn_shell() {
@@ -81,4 +130,18 @@ function lego::base::has_str() {
 function lego::base::fn_exists() {
     type "${1}" 2>/dev/null | grep -q 'function' || echo "false"
     # return
+}
+
+function lego::base::logo() {
+    echo "
+   ██▓    ▓█████   ▄████  ▒█████  
+  ▓██▒    ▓█   ▀  ██▒ ▀█▒▒██▒  ██▒
+  ▒██░    ▒███   ▒██░▄▄▄░▒██░  ██▒
+  ▒██░    ▒▓█  ▄ ░▓█  ██▓▒██   ██░
+  ░██████▒░▒████▒░▒▓███▀▒░ ████▓▒░
+  ░ ▒░▓  ░░░ ▒░ ░ ░▒   ▒ ░ ▒░▒░▒░ 
+  ░ ░ ▒  ░ ░ ░  ░  ░   ░   ░ ▒ ▒░ 
+    ░ ░      ░   ░ ░   ░ ░ ░ ░ ▒  
+      ░  ░   ░  ░      ░     ░ ░  
+    "
 }
