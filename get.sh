@@ -130,6 +130,12 @@ function main() {
         do_download "${current_folder}"
         ;;
     esac
-    # @TODO add auto-complete
+
+    echo ""
+    echo "***************************************************************"
+    echo "***please add following commands to .bashrc for tab completing***"
+    echo ""
+    echo "source ${current_folder}/lego/lego/ac/auto-complete"
+    echo "***************************************************************"
 }
 main "$@"

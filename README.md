@@ -72,8 +72,7 @@ o idevz your_function
 ## TODO
 
 * [auto completion][auto_completion]
-* online installation
-* add,remove modules
+* update,remove modules
 
 [lego]:https://github.com/idevz/lego/blob/master/README-zh.md
 [auto_completion]:https://www.infoq.cn/article/bash-programmable-completion-tutorial

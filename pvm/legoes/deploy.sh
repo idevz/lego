@@ -32,6 +32,7 @@ LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 #
 # run `o pvm deploy::init_etc` command in pvm
 # and manual source the two files make these works
+# desp
 function pvm::deploy::init_etc() {
     sudo cp "${LEGO_ROOT}/tpls/etc-profile" /etc/profile
     sudo cp "${LEGO_ROOT}/tpls/etc-sudoers" /etc/sudoers
@@ -39,6 +40,7 @@ function pvm::deploy::init_etc() {
 
 # 2. change shell to zsh
 # @TODO check runX.zshrc file and fix the runX.zshrc funcs
+# desp
 function pvm::deploy::using_zsh() {
     echo "change to zsh"
     sudo yum install -y zsh
@@ -51,6 +53,7 @@ function pvm::deploy::using_zsh() {
 }
 
 # 3. for no password login
+# desp
 function pvm::deploy::init_ssh_path() {
     # $(h::call_func pvm::deploy::using_zsh)
     # sudo hostnamectl set-hostname ${HOST_NAME_SET}
@@ -60,6 +63,7 @@ function pvm::deploy::init_ssh_path() {
 
 # 4. for no password login to pvm
 # run `o pvm deploy::no_pass_login_to_pvm` command in mac
+# desp
 function pvm::deploy::no_pass_login_to_pvm() {
     local ip=${1}
     scp ~/.ssh/id_rsa.pub z@${ip}:~/.ssh/authorized_keys
@@ -68,6 +72,7 @@ function pvm::deploy::no_pass_login_to_pvm() {
 
 # 5. for no password login to mac(or log out direct)
 # run `o pvm deploy::no_pass_login_to_mac` command in pvm
+# desp
 function pvm::deploy::no_pass_login_to_mac() {
     ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
     cat ~/.ssh/id_rsa.pub
@@ -75,6 +80,7 @@ function pvm::deploy::no_pass_login_to_mac() {
     echo "like cat >>~/.ssh/authorized_keys in mac ..."
 }
 
+# desp
 function pvm::deploy::xx() {
     echo "------->pvm::deploy::xx"
 }

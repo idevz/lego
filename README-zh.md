@@ -55,8 +55,7 @@ o idevz your_function
 ## TODO
 
 * [自动补全][auto_completion]
-* 在线安装
-* 添加、删除模块
+* 更新、删除模块
 
 [lego]:https://github.com/idevz/lego/blob/master/README.md
 [auto_completion]:https://www.infoq.cn/article/bash-programmable-completion-tutorial
