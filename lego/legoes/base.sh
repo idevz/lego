@@ -42,6 +42,12 @@ function lego::base::create_module() {
     shift 2
     local module_name=${1}
     local func_file=${2}
+
+    if [ "$(lego::base::fn_exists "${module_name}")" != 'false' ]; then
+        shift
+        echo "Already had a command named '${module_name}', you should choise aonther one." && exit 1
+    fi
+
     [[ -z "${module_name}" ]] &&
         echo "moudle name must be not empty." && exit 1
     local module_legoes_path=${LEGO_ROOT}/vendor/${module_name}/legoes
@@ -144,4 +150,148 @@ function lego::base::logo() {
     ░ ░      ░   ░ ░   ░ ░ ░ ░ ▒  
       ░  ░   ░  ░      ░     ░ ░  
 "
+}
+
+function _lego_zsh_complete() {
+    reply=(
+        $(cat $HOME/.lego/cmds.cache | xargs echo)
+    )
+}
+
+function _lego_bash_complete() {
+    local pre cur opts
+    COMPREPLY=()
+    pre=${1}
+    cur=${2}
+    case "$cur" in
+    *)
+        cmds=$(cat $HOME/.lego/cmds.cache | xargs echo)
+        COMPREPLY=($(compgen -W "$cmds" -- $cur))
+        ;;
+    esac
+}
+
+function lego::base::auto_complete() {
+    if [ -n "$ZSH_VERSION" ]; then
+        compctl -K _lego_zsh_complete o
+    else
+        compctl -K _lego_bash_complete o
+    fi
+}
+
+function _lego_pcolumn() {
+    echo -e "${1}" #|
+    #     awk -F'\t' '{
+    #     if (length(${1}) < 15) {
+    #         printf "%-15s%s\n",${1},${2}
+    #     } else {
+    #         print ${1};
+    #         printf "%-15s%s\n", "", ${2}
+    #     }
+    # }'
+}
+
+# ok
+function _lego_ptitle() {
+    length=${#1}
+    prefix_count=$(((30 - length) / 2))
+    for i in $(seq 0 ${prefix_count}); do
+        echo -n '='
+    done
+    echo -n " ${1} "
+    postfix_count=$((length % 2 != 0 ? prefix_count + 1 : prefix_count))
+    for i in $(seq 0 ${postfix_count}); do
+        echo -n '='
+    done
+    printf '\r\n'
+}
+
+# ability functions are only in hepers.sh
+function _lego_ability() {
+    local module="${1}"
+    local func_shell="${2}"
+    [ -z "${module}" ] && echo "empty module" && exit 1
+    [ -z "${func_shell}" ] && echo "empty func_shell" && exit 1
+
+    _lego_ptitle "${module}-ability-functions"
+
+    grep -B 1 -E '^function ([^ _].*?)\(' "${func_shell}" |
+        while read func_desp; do
+            read func_name
+
+            cmd=$(
+                echo ${func_name} | awk -v m="${module}" '
+                {
+                    match($2,/(.*?)\(/,a)
+                }{
+                    if (m=="lego")
+                    {
+                        print a[1]
+                    } else {
+                        print m" "a[1]
+                    }
+                }
+                '
+            )
+
+            desp="$(echo "${func_desp}" | cut -c 2-)"
+
+            if [ "${cmd}" != "" ]; then
+                _lego_pcolumn "${cmd}\t${desp}"
+                echo "${cmd}" >>"${HOME}/.lego/cmds.cache"
+            fi
+
+            read _
+        done
+}
+
+function _lego_module_funcs() {
+    local module="${1}"
+    local func_shell="${2}"
+    [ -z "${module}" ] && echo "empty module" && exit 1
+    [ -z "${func_shell}" ] && echo "empty func_shell" && exit 1
+
+    _lego_ptitle "${module}-module-functions"
+
+    grep -B 1 -E '^function ([^ _].*::.*?)\(' ${func_shell} |
+        while read func_desp; do
+            read func_name
+
+            cmd=$(
+                echo ${func_name} | awk -v m="${module}" '{match($2,/(.*?)::(.*?)::(.*?)\(/,a)}{print m" "a[2]"::"a[3]}'
+            )
+
+            desp="$(echo "${func_desp}" | cut -c 2-)"
+
+            if [ "${cmd}" != "" ]; then
+                _lego_pcolumn "${cmd}\t${desp}"
+                echo "${cmd}" >>"${HOME}/.lego/cmds.cache"
+            fi
+            read _
+        done
+}
+
+# ok
+function lego::base::find_command() {
+    for module in $(ls -l "${1}" | grep ^d | awk '{print $9}'); do
+        local func_shell_path="${1}/${module}/legoes"
+        if [ ! -d "${func_shell_path}" ]; then
+            continue
+        fi
+        func_shell=$(ls -l "${func_shell_path}" | grep '.sh' | awk '{print $9}')
+        if [ "${func_shell}" = "" ]; then
+            continue
+        fi
+
+        _lego_ptitle "${module}"
+        for file in ${func_shell}; do
+            local tpm_shell_file="${func_shell_path}/${file}"
+            if [ "${file}" = 'helpers.sh' ]; then
+                _lego_ability "${module}" "${tpm_shell_file}" || echo ""
+            else
+                _lego_module_funcs "${module}" "${tpm_shell_file}" || echo ""
+            fi
+        done
+        echo ''
+    done
 }
