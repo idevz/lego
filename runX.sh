@@ -15,6 +15,7 @@ LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 
 # must source to current action scope
 source ${LEGO_ROOT}/lego/legoes/base.sh && lego::base::load_common || exit 1
+source ${LEGO_ROOT}/lego/legoes/helpers.sh
 
 module_name=${1}
 
@@ -28,7 +29,21 @@ Usage:
             o pvm dosomething
 "
     ;;
+l | -l | --list)
+    rm -f "$HOME/.lego/cmds.cache" 2>/dev/null ||
+        mkdir "$HOME/.lego" 2>/dev/null
+    echo 'Available commands:'
+    lego::base::find_command "$LEGO_ROOT"
+    lego::base::find_command "$LEGO_ROOT/vendor"
+    exit 0
+    ;;
 *)
+    # calling lego's default ablity functions
+    if [ "$(lego::base::fn_exists "${module_name}")" != 'false' ]; then
+        shift
+        ${module_name} "$@" && exit 0
+    fi
+
     # if there is a '::' in ${2}, then this call a function, like o pvm deploy::${func?}
     # if not, then its calling a export ablity from each 'helper.sh', like o pvm dosomething
     if [ "$(lego::base::has_str "${2}" "::")" = 'false' ]; then
@@ -48,7 +63,7 @@ Usage:
     [ -f "${vendor_lego_shell}" ] && source "${vendor_lego_shell}"
 
     if [ "$(lego::base::fn_exists "${func_name}")" != 'false' ]; then
-        ${func_name} "$@" && echo "done." && exit 0
+        ${func_name} "$@" && exit 0
     else
         echo "none function ${func_name} found."
         exit 1
