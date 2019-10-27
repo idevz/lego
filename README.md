@@ -40,6 +40,22 @@ o lego add idevz
 o idevz your_function
 ```
 
+### auto-complete
+
+Append the following command to the corresponding shell.rc file to enable automatic completion of the command.
+
+```bash
+source $YOUR_LEGO_ROOT/lego/ac/auto-complete
+```
+
+In the case of ZSH, simply append the above command at the end of the `~/.zshrc` file, and then execute `source ~/.zshrc` to make the append take effect to complete automatic completion.
+
+```bash
+# Note that replace the $YOUR_LEGO_ROOT with your own Lego installation root
+# Run the `o l_status` command to get the current LEGO_ROOT path
+echo 'source $YOUR_LEGO_ROOT/lego/ac/auto-complete' >> ~/.zshrc
+```
+
 ## Main functions and ideas
 
 * Quickly set up the experimental environment, deploy PVM(Parallels Virtual Machines),
@@ -71,7 +87,8 @@ o idevz your_function
 
 ## TODO
 
-* [auto completion][auto_completion]
+* Optimize [auto completion][auto_completion] (For example, complete the module first,
+  and then complete the relevant commands behind the module)
 * update,remove modules
 
 [lego]:https://github.com/idevz/lego/blob/master/README-zh.md

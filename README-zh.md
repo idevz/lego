@@ -38,6 +38,23 @@ o lego add idevz
 o idevz your_function
 ```
 
+### 自动补全
+
+在相应的 shell .rc 文件后追加如下命令来开启命令自动补全
+
+```bash
+source $YOUR_LEGO_ROOT/lego/ac/auto-complete
+```
+
+以 zsh 为例，只需在 `~/.zshrc` 文件末尾追加上面的命令，然后执行 `source ~/.zshrc` 令追加生效，
+即可完成自动补全。
+
+```bash
+# 注意，把这里的 $YOUR_LEGO_ROOT 换成你自己的 Lego 安装根目录
+# 运行 `o l_status` 命令可获取当前 LEGO_ROOT 路径
+echo 'source $YOUR_LEGO_ROOT/lego/ac/auto-complete' >> ~/.zshrc
+```
+
 ## 主要功能及思想
 
 * 快速搭建实验环境，部署 pvm(Parallels Virtual Machines)，并通过 prlctl 工具来管理 pvm
@@ -54,7 +71,7 @@ o idevz your_function
 
 ## TODO
 
-* [自动补全][auto_completion]
+* 优化[自动补全]功能[auto_completion]（比如首先对 模块进行补全，然后再补全模块后面的相关命令）
 * 更新、删除模块
 
 [lego]:https://github.com/idevz/lego/blob/master/README.md

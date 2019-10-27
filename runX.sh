@@ -29,6 +29,12 @@ Usage:
             o pvm dosomething
 "
     ;;
+l_status)
+    echo "
+    The current version of Your Lego is: v0.1;
+    and LEGO_ROOT is ${LEGO_ROOT}.
+    "
+    ;;
 l | -l | --list)
     rm -f "$HOME/.lego/cmds.cache" 2>/dev/null ||
         mkdir "$HOME/.lego" 2>/dev/null
