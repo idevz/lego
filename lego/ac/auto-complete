@@ -1,0 +1,25 @@
+### BEGIN ###
+# Author: qindi
+# Since: 15:57:00 2019/10/27
+# Description:       For what?
+# ac          simple usage.
+#
+# this auto-complete script is came from wtools
+#
+### END ###
+
+script_path=$_
+
+if [ -n "$BASH_SOURCE" ]; then
+    LEGO_ROOT=$(dirname "$BASH_SOURCE")
+elif [ -n "$script_path" ]; then
+    LEGO_ROOT=$(dirname "$script_path")
+else
+    LEGO_ROOT=$(dirname "$(echo "$0" | sed -e '')")
+fi
+
+if [ -n "$ZSH_VERSION" ]; then
+    source ${LEGO_ROOT}/../../lego/ac/lego.zsh
+else
+    source ${LEGO_ROOT}/../../lego/ac/lego.bash
+fi
