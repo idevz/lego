@@ -152,46 +152,20 @@ function lego::base::logo() {
 "
 }
 
-function _lego_zsh_complete() {
-    reply=(
-        $(cat $HOME/.lego/cmds.cache | xargs echo)
-    )
-}
-
-function _lego_bash_complete() {
-    local pre cur opts
-    COMPREPLY=()
-    pre=${1}
-    cur=${2}
-    case "$cur" in
-    *)
-        cmds=$(cat $HOME/.lego/cmds.cache | xargs echo)
-        COMPREPLY=($(compgen -W "$cmds" -- $cur))
-        ;;
-    esac
-}
-
-function lego::base::auto_complete() {
-    if [ -n "$ZSH_VERSION" ]; then
-        compctl -K _lego_zsh_complete o
-    else
-        compctl -K _lego_bash_complete o
-    fi
-}
-
+# came from wtools create by qindi@weibo.com
 function _lego_pcolumn() {
-    echo -e "${1}" #|
-    #     awk -F'\t' '{
-    #     if (length(${1}) < 15) {
-    #         printf "%-15s%s\n",${1},${2}
-    #     } else {
-    #         print ${1};
-    #         printf "%-15s%s\n", "", ${2}
-    #     }
-    # }'
+    echo -e "${1}" |
+        awk -F'\t' '{
+        if (length($1) < 36) {
+            printf "%-36s:%s\n",$1,$2
+        } else {
+            print $1;
+            printf "%-36s:%s\n", "", $2
+        }
+    }'
 }
 
-# ok
+# came from wtools create by qindi@weibo.com
 function _lego_ptitle() {
     length=${#1}
     prefix_count=$(((30 - length) / 2))
