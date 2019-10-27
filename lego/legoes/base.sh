@@ -188,7 +188,7 @@ function _lego_ability() {
     [ -z "${func_shell}" ] && echo "empty func_shell" && exit 1
 
     _lego_ptitle "${module}-ability-functions"
-
+    # functions start with '_' are privite functions,which would never exported.
     grep -B 1 -E '^function ([^ _].*?)\(' "${func_shell}" |
         while read func_desp; do
             read func_name
@@ -227,6 +227,7 @@ function _lego_module_funcs() {
 
     _lego_ptitle "${module}-module-functions"
 
+    # functions start with '_' are privite functions,which would never exported.
     grep -B 1 -E '^function ([^ _].*::.*?)\(' ${func_shell} |
         while read func_desp; do
             read func_name
