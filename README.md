@@ -85,11 +85,19 @@ echo 'source $YOUR_LEGO_ROOT/lego/ac/auto-complete' >> ~/.zshrc
   and it can also dock with the automatic completion
   (the automatic completion has not been implemented yet).
 
+## Norms and conventions
+
+* The help information for all functions is written on the previous line of the
+  corresponding function definition. Lego will parse the shell file to get all the
+  available functions and their corresponding help information
+  (help information should not be too long, just briefly explain the main points).
+
 ## TODO
 
 * Optimize [auto completion][auto_completion] (For example, complete the module first,
   and then complete the relevant commands behind the module)
 * update,remove modules
+* `-h` Commands support explicit help information by module name
 
 [lego]:https://github.com/idevz/lego/blob/master/README-zh.md
 [auto_completion]:https://www.infoq.cn/article/bash-programmable-completion-tutorial

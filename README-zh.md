@@ -69,10 +69,16 @@ echo 'source $YOUR_LEGO_ROOT/lego/ac/auto-complete' >> ~/.zshrc
   文件名必须是 "helpers.sh"，比如 ”pvm/legoes/helpers.sh“ 中的 "start" 函数，其对应的命令为 `o pvm start`
 * 除了 lego 目录下的全局模块外，其它的函数功能都是通过命令反推加载对应的文件，同时与自动补全对接（自动补全还未实现）
 
+## 规范及约定
+
+* 所有功能的帮助信息都写在对应功能函数定义的前一行，Lego 会解析 shell 文件
+  获取所有可用的功能及其对应的帮助信息（帮助信息不宜过长，简单说明要点即可）
+
 ## TODO
 
 * 优化[自动补全]功能[auto_completion]（比如首先对 模块进行补全，然后再补全模块后面的相关命令）
 * 更新、删除模块
+* `-h` 命令支持按模块名称显式相关帮助信息
 
 [lego]:https://github.com/idevz/lego/blob/master/README.md
 [auto_completion]:https://www.infoq.cn/article/bash-programmable-completion-tutorial

@@ -26,6 +26,7 @@ function xadd() {
     lego::base::call_func "lego::base::create_module" "sys" "$@"
 }
 
+# curl with statistics
 function curl() {
     ${cmd_curl} -w '\nstatistics:\n\ntime_namelookup=%{time_namelookup}\ntime_appconnect=%{time_appconnect}\ntime_connect=%{time_connect}\ntime_redirect=%{time_redirect}\ntime_pretransfer=%{time_pretransfer}\ntime_starttransfer=%{time_starttransfer}\ntime_total=%{time_total}\n\n' "$@"
 }
