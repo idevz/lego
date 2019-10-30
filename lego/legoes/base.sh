@@ -246,27 +246,38 @@ function _lego_module_funcs() {
         done
 }
 
+function _lego_base_find_command() {
+    local moudle_parents_root=${1}
+    local module=${2}
+    local func_shell_path="${moudle_parents_root}/${module}/legoes"
+    if [ ! -d "${func_shell_path}" ]; then
+        return 1
+    fi
+    func_shell=$(ls -l "${func_shell_path}" | grep '.sh' | awk '{print $9}')
+    if [ "${func_shell}" = "" ]; then
+        return 1
+    fi
+
+    _lego_ptitle "${module}"
+    for file in ${func_shell}; do
+        local tpm_shell_file="${func_shell_path}/${file}"
+        if [ "${file}" = 'helpers.sh' ]; then
+            _lego_ability "${module}" "${tpm_shell_file}" || echo ""
+        else
+            _lego_module_funcs "${module}" "${tpm_shell_file}" || echo ""
+        fi
+    done
+    echo ''
+}
+
 # ok
 function lego::base::find_command() {
+    if [ ! -z "${2}" ]; then
+        module=${2}
+        _lego_base_find_command "${1}" "${module}"
+        return 0
+    fi
     for module in $(ls -l "${1}" | grep ^d | awk '{print $9}'); do
-        local func_shell_path="${1}/${module}/legoes"
-        if [ ! -d "${func_shell_path}" ]; then
-            continue
-        fi
-        func_shell=$(ls -l "${func_shell_path}" | grep '.sh' | awk '{print $9}')
-        if [ "${func_shell}" = "" ]; then
-            continue
-        fi
-
-        _lego_ptitle "${module}"
-        for file in ${func_shell}; do
-            local tpm_shell_file="${func_shell_path}/${file}"
-            if [ "${file}" = 'helpers.sh' ]; then
-                _lego_ability "${module}" "${tpm_shell_file}" || echo ""
-            else
-                _lego_module_funcs "${module}" "${tpm_shell_file}" || echo ""
-            fi
-        done
-        echo ''
+        _lego_base_find_command "${1}" "${module}" || continue
     done
 }

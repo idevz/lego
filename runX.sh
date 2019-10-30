@@ -18,6 +18,7 @@ source ${LEGO_ROOT}/lego/legoes/base.sh && lego::base::load_common || exit 1
 source ${LEGO_ROOT}/lego/legoes/helpers.sh
 
 module_name=${1}
+shift
 
 case ${module_name} in
 h | -h | --help)
@@ -39,8 +40,8 @@ l | -l | --list)
     rm -f "$HOME/.lego/cmds.cache" 2>/dev/null ||
         mkdir "$HOME/.lego" 2>/dev/null
     echo 'Available commands:'
-    lego::base::find_command "$LEGO_ROOT"
-    lego::base::find_command "$LEGO_ROOT/vendor"
+    lego::base::find_command "$LEGO_ROOT" "${1}"
+    lego::base::find_command "$LEGO_ROOT/vendor" "${1}"
     exit 0
     ;;
 *)
@@ -50,15 +51,15 @@ l | -l | --list)
         ${module_name} "$@" && exit 0
     fi
 
-    # if there is a '::' in ${2}, then this call a function, like o pvm deploy::${func?}
+    # if there is a '::' in ${1}, then this call a function, like o pvm deploy::${func?}
     # if not, then its calling a export ablity from each 'helper.sh', like o pvm dosomething
-    if [ "$(lego::base::has_str "${2}" "::")" = 'false' ]; then
-        func_name=${2}
-        shift 2
+    if [ "$(lego::base::has_str "${1}" "::")" = 'false' ]; then
+        func_name=${1}
+        shift
         func_shell="${module_name}/legoes/helpers.sh"
     else
-        func_name="${module_name}::${2}"
-        shift 2
+        func_name="${module_name}::${1}"
+        shift
         func_shell="$(lego::base::fn_shell "${func_name}")"
     fi
 
