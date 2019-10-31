@@ -47,7 +47,6 @@ l | -l | --list)
 *)
     # calling lego's default ablity functions
     if [ "$(lego::base::fn_exists "${module_name}")" != 'false' ]; then
-        shift
         ${module_name} "$@" && exit 0
     fi
 
