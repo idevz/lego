@@ -84,8 +84,8 @@ set -e
 LEGO_ROOT=\$(dirname \$(cd \$(dirname "\$0") && pwd -P)/\$(basename "\$0"))
 COMMON_LEGO_ROOT=\${LEGO_ROOT}/lego/legoes/
 
-function your_function() {
-    echo "do something."
+function ${module_name}_function() {
+    echo "do something for ${module_name}"
 }
 HELPERS
 }
