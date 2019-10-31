@@ -24,6 +24,8 @@ set -e
 
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes/
+BLOG_ROOT=${BROOT:-"${GIT}/idevz.org"}
+HUGO_CMD="hugo"
 
 # gen a hugo tile with '-'
 function _h_title() {
@@ -37,15 +39,24 @@ CODE
     # echo 'print("xxx")' | xargs -0 python -c
 }
 
-# new hugo blog
+# new a hugo blog content
 function new() {
-    local hugo_cmd="hugo"
-    [ "$(uname)" = 'Darwin' ] && hugo_cmd="hugox"
     local title="${1}"
-    local blog_root=${2:-"${GIT}/idevz.org"}
-    cd "${blog_root}"
+    cd "${BLOG_ROOT}"
     local content_file=
     content_file="$(_h_title "${title}")"
-    $(command -v "${hugo_cmd}") new "${content_file}" && echo "done"
+    $(command -v "${HUGO_CMD}") new "${content_file}" && echo "done"
     cd - >/dev/null 2>&1
+}
+
+# start the local hugo server
+function start() {
+    cd "${BLOG_ROOT}"
+    $(command -v "${HUGO_CMD}") server "$@" &
+    cd - >/dev/null 2>&1
+}
+
+# stop the local hugo server
+function stop() {
+    killall "${HUGO_CMD}"
 }
