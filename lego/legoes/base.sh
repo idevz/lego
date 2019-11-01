@@ -212,6 +212,7 @@ function _lego_ability() {
 
             if [ "${cmd}" != "" ]; then
                 _lego_pcolumn "${cmd}\t${desp}"
+                [ ! -d "${HOME}/.lego" ] && mkdir "${HOME}/.lego"
                 echo "${cmd}" >>"${HOME}/.lego/cmds.cache"
             fi
 
