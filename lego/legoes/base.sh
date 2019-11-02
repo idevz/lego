@@ -38,8 +38,8 @@ function lego::base::load_common() {
 }
 
 function lego::base::create_module() {
-    type=${2}
-    shift 2
+    type=${1}
+    shift
     local module_name=${1}
     local func_file=${2}
 
@@ -53,10 +53,28 @@ function lego::base::create_module() {
     local module_legoes_path=${LEGO_ROOT}/vendor/${module_name}/legoes
     [ "${type}" = 'sys' ] &&
         module_legoes_path=${LEGO_ROOT}/${module_name}/legoes
-    mkdir -p "${module_legoes_path}"
-    [[ -z ${func_file} ]] && func_file="helpers"
-    touch "${module_legoes_path}/${func_file}.sh"
-    cat <<HELPERS >"${module_legoes_path}/${func_file}.sh"
+    if [[ ! -d ${module_legoes_path} ]]; then
+        mkdir -p "${module_legoes_path}"
+        _lego_base_create_shell \
+            "${module_legoes_path}/helpers.sh" \
+            "helpers" "${module_name}" "${module_name}_function"
+    fi
+    if [ -n "${func_file}" ]; then
+        f_name="${module_name}::${func_file}::do_something"
+        _lego_base_create_shell \
+            "${module_legoes_path}/${func_file}.sh" \
+            "${func_file}" "${module_name}" "${f_name}"
+    fi
+}
+
+function _lego_base_create_shell() {
+    local func_shell=${1}
+    local func_file=${2}
+    local module_name=${3}
+    local f_name=${4}
+    if [ ! -f "${func_shell}" ]; then
+        touch "${func_shell}"
+        cat <<HELPERS >"${func_shell}"
 #!/usr/bin/env bash
 
 ### BEGIN ###
@@ -84,10 +102,14 @@ set -e
 LEGO_ROOT=\$(dirname \$(cd \$(dirname "\$0") && pwd -P)/\$(basename "\$0"))
 COMMON_LEGO_ROOT=\${LEGO_ROOT}/lego/legoes/
 
-function ${module_name}_function() {
+function ${f_name}() {
     echo "do something for ${module_name}"
 }
 HELPERS
+        printf "sucessful create func shell %s\n" "${func_shell}"
+    else
+        printf "%s 's function shell %s.sh is already exist, \nplease change one" "${module_name}" "${func_file}"
+    fi
 }
 
 function lego::base::fn_shell() {
@@ -96,6 +118,7 @@ function lego::base::fn_shell() {
 
 function lego::base::call_func() {
     func_name=${1}
+    shift
     [ -z "${func_name}" ] && exit 1
 
     if [ "$(lego::base::fn_exists "${func_name}")" = 'false' ]; then
@@ -275,7 +298,7 @@ function _lego_base_find_command() {
 function lego::base::find_command() {
     if [ ! -z "${2}" ]; then
         module=${2}
-        _lego_base_find_command "${1}" "${module}"
+        _lego_base_find_command "${1}" "${module}" || echo ""
         return 0
     fi
     for module in $(ls -l "${1}" | grep ^d | awk '{print $9}'); do
