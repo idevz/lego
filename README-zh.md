@@ -76,7 +76,7 @@ echo 'source $YOUR_LEGO_ROOT/lego/ac/auto-complete' >> ~/.zshrc
 
 ## TODO
 
-* 优化[自动补全]功能[auto_completion]（比如首先对 模块进行补全，然后再补全模块后面的相关命令）
+* 优化[自动补全][auto_completion]功能（比如首先对 模块进行补全，然后再补全模块后面的相关命令）
 * 更新、删除模块
 * `-h` 命令支持按模块名称显式相关帮助信息
 
