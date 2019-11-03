@@ -16,3 +16,15 @@ BASE_DIR=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 function init_venv() {
     echo "pvm->ok"
 }
+
+# pip freeze to requirements.txt
+function pip_freeze() {
+    local proj_root=${1:-"./"}
+    $(command -v pip3) freeze "${proj_root}/requirements.txt"
+}
+
+# pip unfreeze from requirements.txt
+function pip_unfreeze() {
+    local proj_root=${1:-"./"}
+    $(command -v pip3) -r "${proj_root}/requirements.txt"
+}
