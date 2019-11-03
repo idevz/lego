@@ -13,6 +13,6 @@
 set -e
 BASE_DIR=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 
-function ok() {
+function init_venv() {
     echo "pvm->ok"
 }
