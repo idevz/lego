@@ -253,7 +253,7 @@ function _lego_module_funcs() {
     [ -z "${module}" ] && echo "empty module" && exit 1
     [ -z "${func_shell}" ] && echo "empty func_shell" && exit 1
 
-    _lego_ptitle "${module}-module-functions"
+    _lego_ptitle "${module}: $(basename "$func_shell" | awk -F\. '{print $1}') funcs"
 
     # functions start with '_' are privite functions,which would never exported.
     grep -B 1 -E '^function ([^ _].*::.*?)\(' ${func_shell} |
@@ -302,7 +302,7 @@ function _lego_base_find_command() {
     echo ''
 }
 
-# ok
+# find command and create command caches
 function lego::base::find_command() {
     local moudle_parents_root="${1}"
     local build_cmd_cache="${2}"
@@ -317,4 +317,22 @@ function lego::base::find_command() {
         _lego_base_find_command "${moudle_parents_root}" "${build_cmd_cache}" "${module}" ||
             continue
     done
+}
+
+function lego::base::only_linux() {
+    if [ "$(uname)" == 'Linux' ]; then
+        return 0
+    else
+        echo "This is only available in Linux."
+        return 1
+    fi
+}
+
+function lego::base::osx_only() {
+    if [ "$(uname)" == 'Darwin' ]; then
+        return 0
+    else
+        echo "This is only available in MacOSX."
+        return 1
+    fi
 }
