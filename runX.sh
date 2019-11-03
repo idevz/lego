@@ -12,6 +12,7 @@
 
 set -e
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
+CMD_CACHE="${HOME}/.lego/cmds.cache"
 
 # must source to current action scope
 source ${LEGO_ROOT}/lego/legoes/base.sh && lego::base::load_common || exit 1
@@ -36,12 +37,24 @@ l_status)
     and LEGO_ROOT is ${LEGO_ROOT}.
     "
     ;;
-l | -l | --list)
-    rm -f "$HOME/.lego/cmds.cache" 2>/dev/null ||
-        mkdir "$HOME/.lego" 2>/dev/null
+ac | auto_complete)
+    [[ -f "${CMD_CACHE}" ]] && rm -f "${CMD_CACHE}"
     echo 'Available commands:'
-    lego::base::find_command "$LEGO_ROOT" "${1}"
-    lego::base::find_command "$LEGO_ROOT/vendor" "${1}"
+    lego::base::find_command "$LEGO_ROOT" "true"
+    lego::base::find_command "$LEGO_ROOT/vendor" "true"
+    cat <<CMDS >>"${CMD_CACHE}"
+h
+help
+l_status
+l
+list
+CMDS
+    exit 0
+    ;;
+l | -l | --list)
+    echo 'Available commands:'
+    lego::base::find_command "$LEGO_ROOT" "false" "${1}"
+    lego::base::find_command "$LEGO_ROOT/vendor" "false" "${1}"
     exit 0
     ;;
 *)
@@ -75,5 +88,4 @@ l | -l | --list)
         exit 1
     fi
     ;;
-
 esac

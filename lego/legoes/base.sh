@@ -207,6 +207,7 @@ function _lego_ptitle() {
 function _lego_ability() {
     local module="${1}"
     local func_shell="${2}"
+    local build_cmd_cache="${3}"
     [ -z "${module}" ] && echo "empty module" && exit 1
     [ -z "${func_shell}" ] && echo "empty func_shell" && exit 1
 
@@ -235,8 +236,10 @@ function _lego_ability() {
 
             if [ "${cmd}" != "" ]; then
                 _lego_pcolumn "${cmd}\t${desp}"
-                [ ! -d "${HOME}/.lego" ] && mkdir "${HOME}/.lego"
-                echo "${cmd}" >>"${HOME}/.lego/cmds.cache"
+                if [ "${build_cmd_cache}" = 'true' ]; then
+                    [ ! -d "${HOME}/.lego" ] && mkdir "${HOME}/.lego"
+                    echo "${cmd}" >>"${HOME}/.lego/cmds.cache"
+                fi
             fi
 
             read _
@@ -246,6 +249,7 @@ function _lego_ability() {
 function _lego_module_funcs() {
     local module="${1}"
     local func_shell="${2}"
+    local build_cmd_cache="${3}"
     [ -z "${module}" ] && echo "empty module" && exit 1
     [ -z "${func_shell}" ] && echo "empty func_shell" && exit 1
 
@@ -264,7 +268,10 @@ function _lego_module_funcs() {
 
             if [ "${cmd}" != "" ]; then
                 _lego_pcolumn "${cmd}\t${desp}"
-                echo "${cmd}" >>"${HOME}/.lego/cmds.cache"
+                if [ "${build_cmd_cache}" = 'true' ]; then
+                    [ ! -d "${HOME}/.lego" ] && mkdir "${HOME}/.lego"
+                    echo "${cmd}" >>"${HOME}/.lego/cmds.cache"
+                fi
             fi
             read _
         done
@@ -272,7 +279,8 @@ function _lego_module_funcs() {
 
 function _lego_base_find_command() {
     local moudle_parents_root=${1}
-    local module=${2}
+    local build_cmd_cache="${2}"
+    local module=${3}
     local func_shell_path="${moudle_parents_root}/${module}/legoes"
     if [ ! -d "${func_shell_path}" ]; then
         return 1
@@ -286,9 +294,9 @@ function _lego_base_find_command() {
     for file in ${func_shell}; do
         local tpm_shell_file="${func_shell_path}/${file}"
         if [ "${file}" = 'helpers.sh' ]; then
-            _lego_ability "${module}" "${tpm_shell_file}" || echo ""
+            _lego_ability "${module}" "${tpm_shell_file}" "${build_cmd_cache}" || echo ""
         else
-            _lego_module_funcs "${module}" "${tpm_shell_file}" || echo ""
+            _lego_module_funcs "${module}" "${tpm_shell_file}" "${build_cmd_cache}" || echo ""
         fi
     done
     echo ''
@@ -296,12 +304,17 @@ function _lego_base_find_command() {
 
 # ok
 function lego::base::find_command() {
-    if [ ! -z "${2}" ]; then
-        module=${2}
-        _lego_base_find_command "${1}" "${module}" || echo ""
+    local moudle_parents_root="${1}"
+    local build_cmd_cache="${2}"
+
+    if [ ! -z "${3}" ]; then
+        module=${3}
+        _lego_base_find_command "${moudle_parents_root}" "${build_cmd_cache}" "${module}" ||
+            echo ""
         return 0
     fi
-    for module in $(ls -l "${1}" | grep ^d | awk '{print $9}'); do
-        _lego_base_find_command "${1}" "${module}" || continue
+    for module in $(ls -l "${moudle_parents_root}" | grep ^d | awk '{print $9}'); do
+        _lego_base_find_command "${moudle_parents_root}" "${build_cmd_cache}" "${module}" ||
+            continue
     done
 }
