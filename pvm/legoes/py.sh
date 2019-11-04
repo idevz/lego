@@ -20,10 +20,13 @@
 #
 ### END ###
 
-set -e
+set -ex
 
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
-COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes/
+COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes
+MODULE_ROOT=${LEGO_ROOT}/pvm
+SRCS_ROOT=${MODULE_ROOT}/srcs/py
+
 VENV_ROOT=${VR:-"${HOME}/.venvs"}
 
 function _pvm_py_venv_must_have_venv_name() {
@@ -88,4 +91,25 @@ function pvm::py::choice_venv() {
 # exit a virtualenv, should exec as "$()" in the parents shell
 function pvm::py::exit_venv() {
     echo "deactivate"
+}
+
+# install conda
+function pvm::py::install_conda() {
+    local conda_install_sh="https://repo.continuum.io/miniconda/Miniconda3-4.7.12-Linux-x86_64.sh"
+    local install_sh="${SRCS_ROOT}/Miniconda3-4.7.12-Linux-x86_64.sh"
+    curl "${conda_install_sh}" >"${install_sh}"
+    chmod +x "${install_sh}"
+    "${install_sh}" -b -p /usr/local/anaconda3
+}
+
+# conda new a venv with venv name and python version
+function pvm::py::conda_new_venv() {
+    local venv_name=${1}
+    local python_version=${2}
+    if [ -z "${venv_name}" ] || [ -z "${python_version}" ]; then
+        echo "venv name and python version must be given."
+        return 1
+    fi
+    command -v conda || pvm::py::install_conda
+    conda create -y --name "${venv_name}" python="${python_version}"
 }
