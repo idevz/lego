@@ -26,6 +26,8 @@ LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes
 MODULE_ROOT=${LEGO_ROOT}/pvm
 SRCS_ROOT=${MODULE_ROOT}/srcs/py
+LEGO_PROF_DIR=${LRD:-"/tmp/lego_prof"}
+[ ! -d "${LEGO_PROF_DIR}" ] && mkdir -p "${LEGO_PROF_DIR}"
 
 VENV_ROOT=${VR:-"${HOME}/.venvs"}
 
@@ -149,15 +151,66 @@ function pvm::py::flame() {
 }
 
 # using python -m cProfile as python
+# usage: o pvm py::cprof xxx.py -args
 # generate a cpu profile in /tmp/"$(basename "${1}")"
 function pvm::py::cprof() {
-    local prof_dir="/tmp"
-    python -m cProfile -o ${prof_dir}/"$(basename "${1}")" $@
+    local date_prix=$(date +"%y-%m-%d%H-%M-%S")
+    local cp_file=${LEGO_PROF_DIR}/"$(basename "${1}").cprof"
+    local callgrind_file=${LEGO_PROF_DIR}/"callgrind.$(basename "${1}")"
+    [ -f "${cp_file}" ] && mv "${cp_file}" \
+        "${LEGO_PROF_DIR}/$(basename "${1}")-${date_prix}.cprof"
+    [ -f "${callgrind_file}" ] && mv "${callgrind_file}" \
+        "${LEGO_PROF_DIR}/callgrind.$(basename "${1}")-${date_prix}"
+    python -m cProfile -o "${cp_file}" $@
+    command -v pyprof2calltree || pip install pyprof2calltree
+    # using qcachegrind on mac to view callgrind_file
+    pyprof2calltree -i "${cp_file}" -o "${callgrind_file}"
+    command -v snakeviz || pip install snakeviz
+    snakeviz -s -H 0.0.0.0 ${LEGO_PROF_DIR}/"$(basename "${1}").cprof"
 }
 
 # using snakeviz to parse a cpu profile in /tmp/"$(basename "${1}")"
 function pvm::py::cprof_v() {
-    local prof_dir="/tmp"
     command -v snakeviz || pip install snakeviz
-    snakeviz -s -H 0.0.0.0 ${prof_dir}/"$(basename "${1}")"
+    snakeviz -s -H 0.0.0.0 ${LEGO_PROF_DIR}/"$(basename "${1}").cprof"
+}
+
+# start a python http server at root:$1 port:$2
+function pvm::start::http_server() {
+    local root="${1:-${LEGO_PROF_DIR}}"
+    cd "${root}"
+    local port="${2:-"9999"}"
+    netstat -nat | grep -i 'listen' | grep "${port}"
+    if [[ $? -eq 1 ]]; then
+        nohup python -m http.server 9999 >/dev/null 2>&1 &
+    else
+        echo "there is a http server already running at ${port}"
+        ps aux | grep python | grep http.server | awk '{print $2}' | xargs kill -9
+        nohup python -m http.server 9999 >/dev/null 2>&1 &
+    fi
+    sleep 0.1
+    printf 'successful start the http server at: \nhttp://0.0.0.0:%s\n' "${port}"
+    cd - >/dev/null 2>&1
+}
+
+# usage: o pvm py::mprof xxx.py -args
+# use python memory_profiler profile a python script
+function pvm::py::mprof() {
+    pvm::start::http_server "${LEGO_PROF_DIR}"
+    local date_prix=$(date +"%y-%m-%d%H-%M-%S")
+    local mp_file=
+    mp_file=${LEGO_PROF_DIR}/"$(basename "${1}").mprof"
+    local mp_png=
+    mp_png=${LEGO_PROF_DIR}/"$(basename "${1}").mprof.png"
+    [ -f "${mp_file}" ] && mv "${mp_file}" ${LEGO_PROF_DIR}/"$(basename "${1}")-${date_prix}.mprof"
+    [ -f "${mp_png}" ] && mv "${mp_png}" ${LEGO_PROF_DIR}/"$(basename "${1}")-${date_prix}.mprof.png"
+    command -v mprof || pip install -U memory_profiler matplotlib
+    mprof run --include-children --multiprocess --output "${mp_file}" "$@"
+    mprof plot "${mp_file}" --output "${mp_png}"
+    printf "view the data at: %s/%s" "http://0.0.0.0:9999" "$(basename "${1}").mprof.png"
+}
+
+function _pvm_pycallgraph() {
+    command -v pycallgraph || pip install pycallgraph
+    pycallgraph graphviz -- "$@"
 }
