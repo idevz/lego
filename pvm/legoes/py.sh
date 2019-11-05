@@ -147,3 +147,17 @@ function pvm::py::flame() {
     command -v pyflame || conda install -y -c eklitzke pyflame
     pyflame "$@"
 }
+
+# using python -m cProfile as python
+# generate a cpu profile in /tmp/"$(basename "${1}")"
+function pvm::py::cprof() {
+    local prof_dir="/tmp"
+    python -m cProfile -o ${prof_dir}/"$(basename "${1}")" $@
+}
+
+# using snakeviz to parse a cpu profile in /tmp/"$(basename "${1}")"
+function pvm::py::cprof_v() {
+    local prof_dir="/tmp"
+    command -v snakeviz || pip install snakeviz
+    snakeviz -s -H 0.0.0.0 ${prof_dir}/"$(basename "${1}")"
+}
