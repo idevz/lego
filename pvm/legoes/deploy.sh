@@ -79,3 +79,20 @@ function pvm::deploy::no_pass_login_to_mac() {
     echo "please append this id_rsa.pub to mac ~/.ssh/authorized_keys"
     echo "like cat >>~/.ssh/authorized_keys in mac ..."
 }
+
+# install qcachegrind on MacOSX
+function _pvm_install_qcachegrind() {
+    # sqlite is keg-only, which means it was not symlinked into /usr/local,
+    # because macOS provides an older sqlite3.
+
+    # If you need to have sqlite first in your PATH run:
+    # echo 'export PATH="/usr/local/opt/sqlite/bin:$PATH"' >>~/.zshrc
+
+    # For compilers to find sqlite you may need to set:
+    # export LDFLAGS="-L/usr/local/opt/sqlite/lib"
+    # export CPPFLAGS="-I/usr/local/opt/sqlite/include"
+
+    # For pkg-config to find sqlite you may need to set:
+    # export PKG_CONFIG_PATH="/usr/local/opt/sqlite/lib/pkgconfig"
+    brew install qcachegrind
+}
