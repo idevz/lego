@@ -20,7 +20,7 @@
 #
 ### END ###
 
-set -ex
+set -e
 
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes
@@ -138,8 +138,12 @@ function pvm::py::conda_new_venv() {
     conda create -y --name "${venv_name}" python="${python_version}"
 }
 
+# using pyflame with python 3.6.5
 function pvm::py::flame() {
-    command -v conda || pvm::py::install_conda
+    # Unexpected ptrace(2) exception:
+    # Failed to PTRACE_PEEKDATA (pid xxx, addr 0x561664ad25a8): Input/output error
+    command -v conda || pvm::py::conda_new_venv "py36" "3.6.5"
+    # conda activate "py36"
     command -v pyflame || conda install -y -c eklitzke pyflame
     pyflame "$@"
 }
