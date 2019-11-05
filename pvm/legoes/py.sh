@@ -95,14 +95,38 @@ function pvm::py::exit_venv() {
 
 # install conda
 function pvm::py::install_conda() {
+    if [ $(uname) = 'Darwin' ]; then
+        brew cask install anaconda
+        conda init zsh
+        return 0
+    fi
     local conda_install_sh="https://repo.continuum.io/miniconda/Miniconda3-4.7.12-Linux-x86_64.sh"
     local install_sh="${SRCS_ROOT}/Miniconda3-4.7.12-Linux-x86_64.sh"
-    curl "${conda_install_sh}" >"${install_sh}"
+    [ ! -d "${SRCS_ROOT}" ] && mkdir -p "${SRCS_ROOT}"
+    [ -f "${install_sh}" ] || curl "${conda_install_sh}" >"${install_sh}"
     chmod +x "${install_sh}"
-    "${install_sh}" -b -p /usr/local/anaconda3
+    sudo "${install_sh}" -b -p /usr/local/anaconda3
+    export PATH=/usr/local/anaconda3/bin:$PATH
+    conda init zsh
 }
 
-# conda new a venv with venv name and python version
+# https://zhuanlan.zhihu.com/p/32925500
+# conda remove --name py35 --all
+# conda info -e    # 环境列表
+# conda list
+# conda list -n py35
+# conda search numpy
+# 安装、更新、删除 某个环境的某个包
+# conda install -n py35 numpy
+# conda update -n py35 numpy
+# conda remove -n py35 numpy
+# conda update anaconda
+# conda update conda
+# conda update python
+# 添加国内镜像
+# conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+# conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+# conda config --set show_channel_urls yes# conda new a venv with venv name and python version
 function pvm::py::conda_new_venv() {
     local venv_name=${1}
     local python_version=${2}
@@ -112,4 +136,10 @@ function pvm::py::conda_new_venv() {
     fi
     command -v conda || pvm::py::install_conda
     conda create -y --name "${venv_name}" python="${python_version}"
+}
+
+function pvm::py::flame() {
+    command -v conda || pvm::py::install_conda
+    command -v pyflame || conda install -y -c eklitzke pyflame
+    pyflame "$@"
 }
