@@ -30,9 +30,21 @@ export ETCDCTL_API=${EV:-"2"}
 # reload apisix with clean
 function reload() {
     cd "${A6HOME}"
+    make stop clean run
+    cd - >/dev/null 2>&1
+}
+
+# run apisix with clean
+function run() {
+    cd "${A6HOME}"
+    make clean run
+    cd - >/dev/null 2>&1
+}
+
+# stop apisix with clean
+function stop() {
+    cd "${A6HOME}"
     make stop
-    make clean
-    make start
     cd - >/dev/null 2>&1
 }
 
