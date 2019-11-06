@@ -13,6 +13,8 @@
 set -e
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 CMD_CACHE="${HOME}/.lego/cmds.cache"
+LEGO_RC="${HOME}/.lego/legorc"
+[ -f "${LEGO_RC}" ] && source "${LEGO_RC}"
 
 # must source to current action scope
 source ${LEGO_ROOT}/lego/legoes/base.sh && lego::base::load_common || exit 1
