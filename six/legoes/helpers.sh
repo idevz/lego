@@ -24,7 +24,37 @@ set -e
 
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes/
+A6HOME=${A6H:-${A6HOME}}
 
-function six_function() {
-    echo "do something for six"
+# reload apisix with clean
+function reload() {
+    cd "${A6HOME}"
+    make stop
+    make clean
+    make start
+}
+
+# list all keys
+function all_keys() {
+    printf "\nall keys:\n\n"
+    ETCDCTL_API=2 etcdctl ls -r -p /apisix | grep -v '\/$'
+    printf "\nall directories:\n\n"
+    ETCDCTL_API=2 etcdctl ls -r -p /apisix | grep '\/$'
+}
+
+# get valuse by keys
+function get_values() {
+    for key in "$@"; do
+        local v=
+        v="$(ETCDCTL_API=2 etcdctl get --quorum "${key}" 2>/dev/null)"
+        if [[ $? -eq 1 ]]; then
+            echo "key: ${key} is not a exist key"
+            continue
+        else
+            printf "\nkey: ${key} \nvaluse is:\n %s" \
+                "$(echo "${v}" | jq .)"
+        fi
+
+    done
+
 }
