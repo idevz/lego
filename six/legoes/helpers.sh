@@ -25,7 +25,16 @@ set -e
 LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes/
 A6HOME=${A6H:-${A6HOME}}
+OR_EXEC=$(command -v openresty)
 export ETCDCTL_API=${EV:-"2"}
+
+function test_conf() {
+    ${OR_EXEC} -p "${A6HOME}" -c "${A6HOME}/conf/nginx.conf" -T
+}
+
+function tail_error() {
+    tail -f "${A6HOME}/logs/error.log"
+}
 
 # reload apisix with clean
 function reload() {
