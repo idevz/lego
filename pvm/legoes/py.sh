@@ -26,9 +26,11 @@ LEGO_ROOT=$(dirname $(cd $(dirname "$0") && pwd -P)/$(basename "$0"))
 COMMON_LEGO_ROOT=${LEGO_ROOT}/lego/legoes
 MODULE_ROOT=${LEGO_ROOT}/pvm
 SRCS_ROOT=${MODULE_ROOT}/srcs/py
-LEGO_PROF_DIR=${LRD:-"/tmp/lego_prof"}
+DATE_PREFIX=$(date +"%y-%m-%d%H-%M-%S")
+P_FILE=$(echo $(basename "${1}")| awk -F\. '{print $1}')
+LEGO_PROF_ROOT=${LPR:-"/tmp/lego_prof"}
+LEGO_PROF_DIR=${LRD:-"${LEGO_PROF_ROOT}/${P_FILE}"}
 [ ! -d "${LEGO_PROF_DIR}" ] && mkdir -p "${LEGO_PROF_DIR}"
-
 VENV_ROOT=${VR:-"${HOME}/.venvs"}
 
 function _pvm_py_venv_must_have_venv_name() {
@@ -140,44 +142,75 @@ function pvm::py::conda_new_venv() {
     conda create -y --name "${venv_name}" python="${python_version}"
 }
 
+# clean the prof tmp files ::clean_prof ./hunter/cmd/dataset.py
+function pvm::py::clean_prof() {
+    rm -rf "${LEGO_PROF_DIR}"
+}
+
 # using pyflame with python 3.6.5
 function pvm::py::flame() {
+    local cp_flame_tmp_data=${LEGO_PROF_DIR}/"${P_FILE}.pyflame.data"
+    local cp_flame_1=${LEGO_PROF_DIR}/"fire1_${P_FILE}.svg"
+    [ -f "${cp_flame_1}" ] && mv "${cp_flame_1}" \
+        "${LEGO_PROF_DIR}/fire1_${P_FILE}-${DATE_PREFIX}.svg"
     # Unexpected ptrace(2) exception:
     # Failed to PTRACE_PEEKDATA (pid xxx, addr 0x561664ad25a8): Input/output error
     command -v conda || pvm::py::conda_new_venv "py36" "3.6.5"
     # conda activate "py36"
+    # https://pyflame.readthedocs.io/en/latest/usage.html
     command -v pyflame || conda install -y -c eklitzke pyflame
-    pyflame "$@"
+    pyflame -r 0.0001  -o "${cp_flame_tmp_data}" -t python "$@"
+    flamegraph.pl <"${cp_flame_tmp_data}" >"${cp_flame_1}"
+    # https://github.com/brendangregg/FlameGraph
+    
+    # 1，perf record --call-graph dwarf -p 12345
+    # 2，perf script | FlameGraph/stackcollapse-perf.pl | FlameGraph/flamegraph.pl >process.svg
+    # export PATH=$MCODE/or-ecosystem/FlameGraph:$PATH
 }
 
 # using python -m cProfile as python
 # usage: o pvm py::cprof xxx.py -args
-# generate a cpu profile in /tmp/"$(basename "${1}")"
+# generate a cpu profile in /tmp/"${P_FILE}"
 function pvm::py::cprof() {
-    local date_prix=$(date +"%y-%m-%d%H-%M-%S")
-    local cp_file=${LEGO_PROF_DIR}/"$(basename "${1}").cprof"
-    local callgrind_file=${LEGO_PROF_DIR}/"callgrind.$(basename "${1}")"
+    local cp_file=${LEGO_PROF_DIR}/"${P_FILE}.cprof"
+    local cp_flame_2=${LEGO_PROF_DIR}/"fire2_${P_FILE}.svg"
+    local callgrind_file=${LEGO_PROF_DIR}/"callgrind.${P_FILE}"
+    local call_tree=${LEGO_PROF_DIR}/"call_tree.${P_FILE}.svg"
     [ -f "${cp_file}" ] && mv "${cp_file}" \
-        "${LEGO_PROF_DIR}/$(basename "${1}")-${date_prix}.cprof"
+        "${LEGO_PROF_DIR}/${P_FILE}-${DATE_PREFIX}.cprof"
+    [ -f "${cp_flame_2}" ] && mv "${cp_flame_2}" \
+        "${LEGO_PROF_DIR}/fire2_${P_FILE}-${DATE_PREFIX}.svg"
     [ -f "${callgrind_file}" ] && mv "${callgrind_file}" \
-        "${LEGO_PROF_DIR}/callgrind.$(basename "${1}")-${date_prix}"
-    python -m cProfile -o "${cp_file}" $@
+        "${LEGO_PROF_DIR}/callgrind.${P_FILE}-${DATE_PREFIX}"
+    [ -f "${call_tree}" ] && mv "${call_tree}" \
+        "${LEGO_PROF_DIR}/call_tree.${P_FILE}-${DATE_PREFIX}.svg"
+
+    python -m cProfile -o "${cp_file}" "$@"
+
+    command -v flameprof || pip install flameprof
+    flameprof "${cp_file}" -o "${cp_flame_2}"
+
     command -v pyprof2calltree || pip install pyprof2calltree
     # using qcachegrind on mac to view callgrind_file
     pyprof2calltree -i "${cp_file}" -o "${callgrind_file}"
+
+    command -v gprof2dot || pip install gprof2dot
+    gprof2dot -f pstats "${cp_file}" | dot -Tsvg -o "${call_tree}"
+
+    # https://jiffyclub.github.io/snakeviz/
     command -v snakeviz || pip install snakeviz
-    snakeviz -s -H 0.0.0.0 ${LEGO_PROF_DIR}/"$(basename "${1}").cprof"
+    snakeviz -s -H 0.0.0.0 ${LEGO_PROF_DIR}/"${P_FILE}.cprof"
 }
 
-# using snakeviz to parse a cpu profile in /tmp/"$(basename "${1}")"
+# using snakeviz to parse a cpu profile in /tmp/"${P_FILE}"
 function pvm::py::cprof_v() {
     command -v snakeviz || pip install snakeviz
-    snakeviz -s -H 0.0.0.0 ${LEGO_PROF_DIR}/"$(basename "${1}").cprof"
+    snakeviz -s -H 0.0.0.0 ${LEGO_PROF_DIR}/"${P_FILE}.cprof"
 }
 
 # start a python http server at root:$1 port:$2
-function pvm::start::http_server() {
-    local root="${1:-${LEGO_PROF_DIR}}"
+function pvm::py::start_http_server() {
+    local root="${1:-${LEGO_PROF_ROOT}}"
     cd "${root}"
     local port="${2:-"9999"}"
     netstat -nat | grep -i 'listen' | grep "${port}"
@@ -196,18 +229,18 @@ function pvm::start::http_server() {
 # usage: o pvm py::mprof xxx.py -args
 # use python memory_profiler profile a python script
 function pvm::py::mprof() {
-    pvm::start::http_server "${LEGO_PROF_DIR}"
-    local date_prix=$(date +"%y-%m-%d%H-%M-%S")
+    pvm::py::start_http_server "${LEGO_PROF_ROOT}"
+    local DATE_PREFIX=$(date +"%y-%m-%d%H-%M-%S")
     local mp_file=
-    mp_file=${LEGO_PROF_DIR}/"$(basename "${1}").mprof"
+    mp_file=${LEGO_PROF_DIR}/"${P_FILE}.mprof"
     local mp_png=
-    mp_png=${LEGO_PROF_DIR}/"$(basename "${1}").mprof.png"
-    [ -f "${mp_file}" ] && mv "${mp_file}" ${LEGO_PROF_DIR}/"$(basename "${1}")-${date_prix}.mprof"
-    [ -f "${mp_png}" ] && mv "${mp_png}" ${LEGO_PROF_DIR}/"$(basename "${1}")-${date_prix}.mprof.png"
+    mp_png=${LEGO_PROF_DIR}/"${P_FILE}.mprof.png"
+    [ -f "${mp_file}" ] && mv "${mp_file}" ${LEGO_PROF_DIR}/"${P_FILE}-${DATE_PREFIX}.mprof"
+    [ -f "${mp_png}" ] && mv "${mp_png}" ${LEGO_PROF_DIR}/"${P_FILE}-${DATE_PREFIX}.mprof.png"
     command -v mprof || pip install -U memory_profiler matplotlib
     mprof run --include-children --multiprocess --output "${mp_file}" "$@"
     mprof plot "${mp_file}" --output "${mp_png}"
-    printf "view the data at: %s/%s" "http://0.0.0.0:9999" "$(basename "${1}").mprof.png"
+    printf "view the data at: %s/%s" "http://0.0.0.0:9999" "${P_FILE}.mprof.png"
 }
 
 function _pvm_pycallgraph() {
