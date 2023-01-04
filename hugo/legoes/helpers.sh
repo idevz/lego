@@ -35,7 +35,7 @@ function _h_title() {
 title="${title}.md";res="-".join(title.split(" "));print(res)
 CODE
     )
-    $(which python) -c "${py}"
+    $(which python3) -c "${py}"
     # echo 'print("xxx")' | xargs -0 python -c
 }
 
